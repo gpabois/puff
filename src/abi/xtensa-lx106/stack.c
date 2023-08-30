@@ -1,7 +1,8 @@
 #include "../stack.h"
-#include "./registers.h"
 
+#ifdef __XTENSA_CALL0_ABI__
 void switch_stack(void *bsp, unsigned int size) {
-    // call0 convention.
-    a1 = bsp + size;
+    register unsigned int *sp asm("a1");
+    *sp = (unsigned int)bsp + size;
 }
+#endif

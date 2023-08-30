@@ -1,7 +1,7 @@
 #ifndef __ASYNC_TASK_H__
 #define __ASYNC_TASK_H__
 
-#include "puff/abi/setjmp.h"
+#include "abi/setjmp.h"
 
 #define ASYNC_TASK_MAX_RETURN_SIZE 100
 #define ASYNC_TASK_MAX_STACK_SIZE 1000

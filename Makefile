@@ -25,11 +25,12 @@ LD=$($(ARCH)_LD)
 ABI_OBJS = setjmp.o stack.o
 ABI_OBJ = $(patsubst %, abi/$(ARCH)/%, $(ABI_OBJS))
 
-OBJS += $(ABI_OBJ)
+OBJS += async/task/alloc.o $(ABI_OBJ)
 OBJ = $(patsubst %, $(ODIR)/%, $(OBJS))
 
 # --- Compiler options --- #
-CFLAGS  = ${CFLAGS_${PLATFORM}_${BUILD}} -DARCH=$(ARCH)
+C_INCLUDE_PATH = src/
+CFLAGS  = ${CFLAGS_${PLATFORM}_${BUILD}} -DARCH=$(ARCH) -I$(C_INCLUDE_PATH)
 
 $(ODIR)/%.o: $(SDIR)/%.c
 	$(CC) -c -o $@ $< $(CFLAGS)
