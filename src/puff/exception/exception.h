@@ -1,13 +1,13 @@
 #ifndef __EXCEPTION_H__
 #define __EXCEPTION_H__
 
-#include <setjmp.h> 
+#include <puff/abi/setjmp.h>
 
-#define EXCEPTION_ERROR_MAX_SIZE 1000;
-#define EXCEPTION_STACK_SIZE 100;
+#define EXCEPTION_ERROR_MAX_SIZE 1000
+#define EXCEPTION_STACK_SIZE 100
 
 static Exception_t exc_stack[EXCEPTION_STACK_SIZE];
-static Exception_t exc_tos = 0;
+static Exception_t* exc_tos = 0;
 
 /*
 * Exception context
@@ -28,7 +28,7 @@ int Exception_push() {
 }
 
 int Exception_try() {
-    return setjmp(exc_tos->env)
+    return setjmp(exc_tos->env);
 }
 
 Exception_t* Exception_current() {

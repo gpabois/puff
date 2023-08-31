@@ -2,7 +2,7 @@
 #define __ABI_SETJMP_H__
 
 #ifdef __XTENSA_CALL0_ABI__
-#include "abi/xtensa-lx106/setjmp.h"
+#include "puff/abi/xtensa-lx106/setjmp.h"
 #endif 
 
 int setjmp(jmp_buf* env);

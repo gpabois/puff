@@ -23,9 +23,9 @@ LD=$($(ARCH)_LD)
 # --- Define the objects --- #
 # ABI-related objects
 ABI_OBJS = setjmp.o stack.o
-ABI_OBJ = $(patsubst %, abi/$(ARCH)/%, $(ABI_OBJS))
+ABI_OBJ = $(patsubst %, puff/abi/$(ARCH)/%, $(ABI_OBJS))
 
-OBJS += async/task/alloc.o $(ABI_OBJ)
+OBJS += puff/async/task/alloc.o $(ABI_OBJ)
 OBJ = $(patsubst %, $(ODIR)/%, $(OBJS))
 
 # --- Compiler options --- #
