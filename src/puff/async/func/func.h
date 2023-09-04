@@ -1,5 +1,5 @@
-#ifndef __ASYNC_TASK_H__
-#define __ASYNC_TASK_H__
+#ifndef __ASYNC_FUNC_H__
+#define __ASYNC_FUNC_H__
 
 #include <puff/std/setjmp.h>
 #include <puff/async/loop.h>
@@ -27,14 +27,14 @@ typedef struct {
     
     AsyncTaskStatus_t status;
 
-} AsyncTask_t;
+} AsyncFunc_t;
 
-typedef AsyncTask_t* AsyncTaskRef_t;
+
 
 /*
 * Setup the async task context and jump back to the caller
 */
-void inline __attribute__((always_inline)) __setup_async_task(AsyncTask_t* task, jmp_buf caller);
+void inline __attribute__((always_inline)) __setup_async_func(AsyncFunc_t* task, jmp_buf caller);
 
 /*
 * Return to event loop from async task.
@@ -44,7 +44,7 @@ void ret_from_async_task();
 /**
 *  Execute the async task
 */
-void exec_async_task(AsyncTask_t* task);
+void exec_async_fun(AsyncFunc_t* task);
 
 /*
 * Acquire the task, avoid being freed.
