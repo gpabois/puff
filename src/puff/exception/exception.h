@@ -1,54 +1,36 @@
 #ifndef __EXCEPTION_H__
 #define __EXCEPTION_H__
 
-#include <puff/abi/setjmp.h>
+#include <puff/std/setjmp.h>
+#include <puff/cpu/cpu.h>
+#include <puff/exception/error.h>
 
-#define EXCEPTION_ERROR_MAX_SIZE 1000
-#define EXCEPTION_STACK_SIZE 100
-
-static Exception_t exc_stack[EXCEPTION_STACK_SIZE];
-static Exception_t* exc_tos = 0;
+#define __auto_typeof(x) __typeof__(({__auto_type y=x; y;}))
 
 /*
-* Exception context
+* An exception try/catch block
 */
 typedef struct {
-    jmp_buf env;
-    char error[EXCEPTION_ERROR_MAX_SIZE];
+    jmp_buf caller;
+    Error_t error;
 } Exception_t;
 
-/**
- * Push an exception block.
-*/
-int Exception_push() {
-    if(exc_tos == 0) 
-        exc_tos = &exc_stack[0];
-    else 
-        exc_tos++;
-}
+char try_exception();
+void throw_exception();
 
-int Exception_try() {
-    return setjmp(exc_tos->env);
-}
+// Pop the current exception block, panics if there is an underflow.
+void clear_exception();
 
-Exception_t* Exception_current() {
-    return exc_tos;
-}
+Exception_t* current_exception();
 
-/**
- * Pop an exception block.
-*/
-int Exception_pop() {
-    if(exc_tos == &exc_stack[0]) 
-        exc_tos = 0;
-    else
-        exc_tos--;
-}
-
-#define begin_exception Exception_push();
-#define try if(!Exception_try()) {
+#define try if(!try_exception()) {
 #define catch(type, varname) } else {\
-    type varname = *(type*)Exception_current()->error;
+    type varname = *(type*)current_exception()->error;\
+} clear_exception();
+#define throw(err_expr) {\
+    Exception_t* exc = current_exception();\
+    __auto_typeof(err_expr)* err = (__auto_typeof(err_expr))exc->error;\
+    *err = err_expr;\
+    throw_exception();\
 }
-#define end_exception Exception_pop();
 #endif

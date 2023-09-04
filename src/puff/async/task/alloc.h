@@ -5,6 +5,7 @@
 
 #define ASYNC_TASK_MAX_SIZE 1000
 
-char AsyncTask_alloc(AsyncTask_t**dest);
+/* Alloc a new async task. Returns 0 if failed. */
+char alloc_async_task(AsyncTask_t**dest);
 
 #endif
