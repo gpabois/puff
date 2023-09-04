@@ -5,31 +5,22 @@
 #include <puff/async/loop.h>
 #include <puff/yarn/yarn.h>
 
-#define ASYNC_TASK_MAX_RETURN_SIZE 100
+
 #define ASYNC_TASK_MAX_CALL_STACK_SIZE 1000
 #define ASYNC_TASK_MAX_EXCEPTION_STACK_SIZE 100
 
-typedef char AsyncReturn_t [ASYNC_TASK_MAX_RETURN_SIZE];
 typedef char AsyncCallStack_t [ASYNC_TASK_MAX_CALL_STACK_SIZE];
 typedef char AsyncExceptionStack_t [ASYNC_TASK_MAX_EXCEPTION_STACK_SIZE];
-typedef unsigned char AsyncTaskStatus_t;
-
-const AsyncTaskStatus_t ASYNC_TASK_FAILED = 0 < 2;
 
 typedef struct {
-    Yarn_t yarn; // Store everything related to the execution flow (exception, call stack...)
-    unsigned char rc; // Reference counter
-    AsyncCallStack_t call_stack; // Call stack
-    AsyncExceptionStack_t exc_stack; // Exception stack
-    AsyncReturn_t ret; // Returned value (if any)
-    Error_t error; // Store the error, if any
-    EventLoop_t* loop; // Owner of the 
+    Yarn_t yarn;                        // Store everything related to the execution flow (exception, call stack...)
     
-    AsyncTaskStatus_t status;
+    unsigned char rc;                   // Reference counter
+    AsyncCallStack_t call_stack;        // Call stack
+    AsyncExceptionStack_t exc_stack;    // Exception stack
 
+    AsyncTask_t*    task;               // The task bound to the async func.
 } AsyncFunc_t;
-
-
 
 /*
 * Setup the async task context and jump back to the caller
