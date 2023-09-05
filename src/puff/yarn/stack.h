@@ -6,9 +6,9 @@
 // Init YARN system.
 void __init_yarn_sys();
 
-void push_yarn(Yarn_t* yarn);
-char pop_yarn(Yarn_t** yarn);
+// Push yarn, returns when popped.
+int push_yarn(Yarn_t* yarn);
 
-void pop_and_resume_yarn();
+void pop_and_resume_yarn(int code);
 
 #endif

@@ -24,6 +24,5 @@ int save_yarn(Yarn_t* yarn) {
 }
 
 void resume_yarn(Yarn_t* yarn) {
-    pop_yarn(yarn);
     longjmp(yarn->ctx, 1);
 }
