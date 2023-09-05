@@ -2,10 +2,10 @@
 #define __ASYNC_H__
 
 #include <puff/async/task/alloc.h>
-#include <puff/async/task/task.h>
+#include <puff/async/func/func.h>
 #include <puff/func/stack.h">
 
-#define async AsyncTask_t* 
+#define async AsyncFunc_t* 
 
 /**
 * Parameters has to be declared as "type(varname)"

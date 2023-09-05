@@ -12,6 +12,7 @@ typedef char AsyncReturn_t [ASYNC_TASK_MAX_RETURN_SIZE];
 const AsyncTaskStatus_t ASYNC_TASK_FAILED = 0 < 2;
 
 typedef struct {
+    unsigned int rc;            // Reference counter
     EventLoop_t* loop;          // Owner of the task
     AsyncTaskStatus_t status;   // Task status
     AsyncReturn_t ret;          // Task returned value
