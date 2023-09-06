@@ -9,10 +9,12 @@ void __process_command(EventLoop_t* loop, AsyncCommand_t* cmd) {
             AsyncTimer_t* timer = cmd->arg.timer;
             // Go to ready queue directly
             if(timer->t <= clock()) {
-
-            } else {
-
-            }
+                if(!enqueue_coro_queue(&loop->ready, timer->coro))
+                    throw(ERR_CORO_OVERFLOW, "cannot add coro to ready's queue of event loop");
+            } else
+                if(!enqueue_async_timer_queue(&loop->timers, timer))
+                    throw(ERR_TIMER_OVERFLOW, "cannot add timer to event loop");
+            
         break;
     }
 }
@@ -36,7 +38,7 @@ void __step_timers(EventLoop_t* loop) {
         if(timer->t <= clock()) {
             __loop_send_to_gen(loop, timer->coro);
         } else {
-            if(!enqueue_locked_async_timer_queue(&queue, timer)) {
+            if(!enqueue_async_timer_queue(&loop->timers, timer)) {
                 throw(ERR_TIMER_OVERFLOW, "cannot add timer to event loop");
             }
         }
@@ -49,8 +51,7 @@ void __step_ready(EventLoop_t* loop) {
     }
 }
 
-void step_loop(EventLoop_t* loop) 
-{
+void step_loop(EventLoop_t* loop) {
     __step_timers(loop);
     __step_ready(loop);
 }
