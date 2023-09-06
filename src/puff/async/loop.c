@@ -17,31 +17,40 @@ void __process_command(EventLoop_t* loop, AsyncCommand_t* cmd) {
     }
 }
 
-void __process_timers(EventLoop_t* loop) {
+void __loop_send_to_gen(EventLoop_t* loop, Coro_t* coro) {
+    switch (__send_to_gen(coro)) {
+        case Gen_Yield:
+            AsyncCommand_t cmd;
+            __gen_get_val(coro, cmd);
+            __process_command(loop, &cmd);
+            break;
+        case Gen_Returned:
+            coro->rc--;
+            break;
+    }
+}
+
+void __step_timers(EventLoop_t* loop) {
     LockedAsyncTimerQueue_t queue = lock_async_timer_queue(&loop->timers);
     for(AsyncTimer_t* timer; dequeue_locked_async_timer_queue(&queue, &timer);) {
         if(timer->t <= clock()) {
-            __send_to_gen(timer->coro);
+            __loop_send_to_gen(loop, timer->coro);
         } else {
-            enqueue_locked_async_timer_queue(&queue, timer);
+            if(!enqueue_locked_async_timer_queue(&queue, timer)) {
+                throw(ERR_TIMER_OVERFLOW, "cannot add timer to event loop");
+            }
         }
     }
 }
 
+void __step_ready(EventLoop_t* loop) {
+    for(Coro_t* ready; __pop_ready(&ready);) {
+        __loop_send_to_gen(loop, ready);
+    }
+}
 
 void step_loop(EventLoop_t* loop) 
 {
-    // Process coro ready to run
-    for(Coro_t* ready; __pop_ready(&ready);) {
-        switch (__send_to_gen(ready)) {
-            case Gen_Yield:
-                AsyncCommand_t cmd;
-                __gen_get_val(ready, cmd);
-                __process_command(loop, &cmd);
-                break;
-            case Gen_Returned:
-                ready->rc--;
-                break;
-        }
-    }
+    __step_timers(loop);
+    __step_ready(loop);
 }

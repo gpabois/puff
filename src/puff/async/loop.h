@@ -3,6 +3,8 @@
 
 #include <puff/async/timer/queue.h>
 
+#define ERR_TIMER_OVERFLOW 1
+
 typedef struct {
     AsyncTimerQueue_t timers;
 } EventLoop_t;
