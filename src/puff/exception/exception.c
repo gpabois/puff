@@ -1,33 +1,31 @@
 #include <puff/exception/exception.h>
-#include <puff/exception/stack.h>
+#include <puff/exception/sys.h>
 #include <puff/std/setjmp.h>
+#include <puff/std/stdio.h>
 #include <puff/cpu/cpu.h>
-#include <puff/exception/panic.h>
+#include <puff/panic.h>
+#include <puff/error.h>
 
-ExceptionStack_t* __assert_exception_stack_exist() {
-    ExceptionStack_t* curr = __get_current_exception_stack();
+ExceptionContext_t* __assert_context_exist() {
+    ExceptionContext_t* curr = __get_current_exception_stack();
     
     if(curr == 0)
-        panic("no exception context is set...");
+        panic("no exception context exist");
 
     return curr;
 }
 
-void __assert_no_overflow() {
-    ExceptionStack_t* curr = __assert_exception_stack_exist();
-    if (curr->tos >= &curr->base[curr->size]) {
+static void __assert_no_overflow() {
+    ExceptionContext_t* curr = __assert_context_exist();
+    if (curr->tos >= &curr->base[curr->size])
         panic("exception's stack overflow");
-    }
 }
 
 /**
  * Push an exception block.
 */
-void __push_exception() {
-    ExceptionStack_t* curr = __assert_exception_stack_exist();
-    
-    if(curr == 0)
-        panic("no exception context is set...");
+static void __push_exception() {
+    ExceptionContext_t* curr = __assert_context_exist();
     
     if(curr->tos == 0) 
         curr->tos = &curr->base[0];
@@ -38,7 +36,7 @@ void __push_exception() {
 }
 
 void clear_exception() {
-    ExceptionStack_t* curr = __assert_exception_context_exist();
+    ExceptionContext_t* curr = __assert_exception_context_exist();
 
     if(curr->tos == &curr->base[0]) 
         curr->tos = 0;
@@ -47,18 +45,37 @@ void clear_exception() {
 }
 
 char try_exception() {
-    ExceptionStack_t* curr = __assert_exception_context_exist();
+    ExceptionContext_t* curr = __assert_exception_context_exist();
     __push_exception();
     return setjmp(curr->tos->caller);
 }
 
-void throw_exception() {
-    ExceptionStack_t* curr = __assert_exception_context_exist();
-    longjmp(curr->tos->caller, 1);
+void __jmp_throw() {
+    ExceptionContext_t* ctx = __assert_exception_context_exist();
+    longjmp(ctx->tos->caller, 1);
 }
 
-Exception_t* current_exception() {
-    ExceptionStack_t* curr = __assert_exception_context_exist();
+void throw_err(Error_t* err) {
+    ExceptionContext_t* ctx = __assert_exception_context_exist();
+    ctx->tos->error = *err;
+}
+
+void throw(int code, const char *fmt, ...) {
+    ExceptionContext_t* ctx = __assert_exception_context_exist();
+    
+    // Fill the error
+    va_list argptr;
+    va_start(argptr, fmt);
+    ctx->tos->error.code = code;
+    vsprintf_error(&ctx->tos->error, fmt, argptr);
+    va_end(argptr);
+
+    // Jump back to the caller
+    __jmp_throw();
+}
+
+Exception_t* __current_exception() {
+    ExceptionContext_t* curr = __assert_exception_context_exist();
     return curr->tos;
 }
 

@@ -4,6 +4,6 @@
 #define _CPU_LEN 1
 #define _CPU_ID_TYPE char
 
-_CPU_ID_TYPE getcpu();
+_CPU_ID_TYPE getcpu() { return 0; };
 
 #endif

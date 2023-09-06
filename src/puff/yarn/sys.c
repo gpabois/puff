@@ -10,17 +10,7 @@ Yarn_t* __curr_yarn() {
     return tos[getcpu()];
 }
 
-void __init_yarn_sys() {
-    for(_CPU_ID_TYPE cpuid = 0; cpuid < _CPU_LEN; cpuid++) {
-        tos[cpuid] = 0;
-    }
-}
-
-void push_yarn(Yarn_t* yarn) {
-
-}
-
-void pop_yarn() {
+Yarn_t* __pop_yarn() {
     Yarn_t* curr = __curr_yarn();
 
     if(curr == 0) {
@@ -29,3 +19,14 @@ void pop_yarn() {
         set_exception_stack(curr->exc_stack);
     }
 }
+
+void __init_yarn_sys() {
+    for(_CPU_ID_TYPE cpuid = 0; cpuid < _CPU_LEN; cpuid++) {
+        tos[cpuid] = 0;
+    }
+}
+
+void push_yarn(Yarn_t* yarn) {
+    
+}
+

@@ -1,17 +1,18 @@
-#ifndef __ASYNC_EVENT_LOOP_H__
-#define __ASYNC_EVENT_LOOP_H__
+#ifndef __LOOP_H__
+#define __LOOP_H__
 
-/*
-* Event loop
-*/
-typedef struct {    
-    
+#include <puff/async/timer.h>
+
+typedef struct {
 
 } EventLoop_t;
 
-/*
-* Add the async task to the event loop.
-*/
-void add_async_task(EventLoop_t* loop, AsyncTask_t* task);
+// Get the current loop
+// Throws an error if there are no loop.
+EventLoop_t* get_current_loop();
+
+// Add a timer to the loop
+// Throws an error if the list is full;
+void register_timer(EventLoop_t* loop, AsyncTimer_t* timer);
 
 #endif

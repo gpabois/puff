@@ -1,9 +1,9 @@
-#include <puff/exception/stack.h>
+#include <puff/exception/sys.h>
 #include <puff/cpu/cpu.h>
 
 static Exception_t default_exc_stacks[_CPU_LEN][DEFAULT_EXCEPTION_STACK_SIZE];
-static ExceptionStack_t default_contexts[_CPU_LEN];
-static ExceptionStack_t* current_contexts[_CPU_LEN];
+static ExceptionContext_t default_contexts[_CPU_LEN];
+static ExceptionContext_t* current_contexts[_CPU_LEN];
 
 void __init_exception_sys()
 {
@@ -12,11 +12,11 @@ void __init_exception_sys()
     }
 }
 
-void set_exception_stack(ExceptionStack_t* ctx)
+void set_exception_context(ExceptionContext_t* ctx)
 {
     current_contexts[getcpu()] = ctx;
 }
 
-ExceptionStack_t* restore_exception_stack() {
+ExceptionContext_t* restore_exception_context() {
     current_contexts[getcpu()] = &default_contexts[getcpu()];
 }

@@ -2,8 +2,7 @@
 #define __EXCEPTION_H__
 
 #include <puff/std/setjmp.h>
-#include <puff/cpu/cpu.h>
-#include <puff/exception/error.h>
+#include <puff/error.h>
 
 #define __auto_typeof(x) __typeof__(({__auto_type y=x; y;}))
 
@@ -15,22 +14,19 @@ typedef struct {
     Error_t error;
 } Exception_t;
 
-char try_exception();
-void throw_exception();
+char __try_exception();
+void __clear_exception();
 
-// Pop the current exception block, panics if there is an underflow.
-void clear_exception();
+void throw(int code, const char* fmt, ...);
+void throw_err(Error_t* err);
 
-Exception_t* current_exception();
+Exception_t* __current_exception();
 
-#define try if(!try_exception()) {
-#define catch(type, varname) } else {\
-    type varname = *(type*)current_exception()->error;\
-} clear_exception();
-#define throw(err_expr) {\
-    Exception_t* exc = current_exception();\
-    __auto_typeof(err_expr)* err = (__auto_typeof(err_expr))exc->error;\
-    *err = err_expr;\
-    throw_exception();\
-}
+// try {} catch(Error_t error) {} finally
+#define try if(!__try_exception()) {
+#define catch(lvalue) } else {\
+    Exception_t* curr = __current_exception();\
+    if(curr == 0) panic("no exception block exist."); \
+    Error_t lvalue = __current_exception()->error;
+#define finally } __clear_exception();
 #endif
