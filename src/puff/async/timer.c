@@ -8,6 +8,5 @@ async_def(char, async_sleep, int, ms) {
     };
     
     yield(async_timer(&timer));
-    
     return 1;
 }

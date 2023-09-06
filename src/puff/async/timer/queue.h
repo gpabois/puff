@@ -3,11 +3,11 @@
 
 #include <puff/async/timer.h>
 
-#define ASYNC_TIMER_MAX_CAPACITY 100
+#define ASYNC_TIMER_QUEUE_CAPACITY 100
 #define ASYNC_TIMER_INDEX_TYPE unsigned char
 
 typedef struct {
-    AsyncTimer_t* base[ASYNC_TIMER_MAX_CAPACITY];
+    AsyncTimer_t* base[ASYNC_TIMER_QUEUE_CAPACITY];
     ASYNC_TIMER_INDEX_TYPE read;
     ASYNC_TIMER_INDEX_TYPE write;
 } AsyncTimerQueue_t;

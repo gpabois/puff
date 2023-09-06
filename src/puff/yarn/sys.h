@@ -3,6 +3,8 @@
 
 #include <puff/yarn/yarn.h>
 
+#define MAX_NUMBER_OF_YARN_PER_CPU 524
+
 // Init YARN system.
 void __init_yarn_sys();
 
