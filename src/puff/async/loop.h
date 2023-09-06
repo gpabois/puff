@@ -1,10 +1,10 @@
 #ifndef __LOOP_H__
 #define __LOOP_H__
 
-#include <puff/async/timer.h>
+#include <puff/async/timer/queue.h>
 
 typedef struct {
-    AsyncTimer_t* timers[10];
+    AsyncTimerQueue_t timers;
 } EventLoop_t;
 
 // Get the current loop

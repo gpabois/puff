@@ -7,9 +7,27 @@ void __process_command(EventLoop_t* loop, AsyncCommand_t* cmd) {
     switch (cmd->type) {
         case AsyncTimerCmd:
             AsyncTimer_t* timer = cmd->arg.timer;
+            // Go to ready queue directly
+            if(timer->t <= clock()) {
+
+            } else {
+
+            }
         break;
     }
 }
+
+void __process_timers(EventLoop_t* loop) {
+    LockedAsyncTimerQueue_t queue = lock_async_timer_queue(&loop->timers);
+    for(AsyncTimer_t* timer; dequeue_locked_async_timer_queue(&queue, &timer);) {
+        if(timer->t <= clock()) {
+            __send_to_gen(timer->coro);
+        } else {
+            enqueue_locked_async_timer_queue(&queue, timer);
+        }
+    }
+}
+
 
 void step_loop(EventLoop_t* loop) 
 {
