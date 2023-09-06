@@ -7,8 +7,7 @@ async_def(char, async_sleep, int, ms) {
         .t = clock() + ms * 1000 / CLOCKS_PER_SEC
     };
     
-    EventLoop_t* loop = get_current_loop();
-    register_timer(loop, &timer);
-    yield(0);
+    yield(async_timer(&timer));
+    
     return 1;
 }

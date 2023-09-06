@@ -10,9 +10,9 @@
 typedef uint8_t GeneratorBuffer_t[_GEN_BUF_LEN];
 typedef uint8_t GeneratorStack_t[_GEN_STACK_LEN];
 
-char Gen_Yield = 0x1;
-char Gen_Returned = 0x2;
-char Gen_Failed = 0x3;
+#define Gen_Yield 1
+#define Gen_Returned 2
+#define Gen_Failed 3
 
 typedef struct {
     uint8_t data[_GEN_BUF_LEN];
