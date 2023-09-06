@@ -1,8 +1,6 @@
 #include <puff/async/loop.h>
 #include <puff/async/command.h>
 
-char __pop_ready(Coro_t** coro);
-
 void __process_command(EventLoop_t* loop, AsyncCommand_t* cmd) {
     switch (cmd->type) {
         case AsyncTimerCmd:
@@ -46,7 +44,8 @@ void __step_timers(EventLoop_t* loop) {
 }
 
 void __step_ready(EventLoop_t* loop) {
-    for(Coro_t* ready; __pop_ready(&ready);) {
+    LockedCoroQueue_t lock = lock_coro_queue(&loop->ready);
+    for(Coro_t* ready; dequeue_locked_coro_queue(&lock, &ready);) {
         __loop_send_to_gen(loop, ready);
     }
 }
