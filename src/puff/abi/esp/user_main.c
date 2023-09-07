@@ -76,14 +76,18 @@ void ICACHE_FLASH_ATTR user_pre_init(void) {
 	}
 }
 
-/**
-* @brief Initialise the ESP, as well as the low-level puff systems.
-*/
-void user_init(void) {
+static void __esp_sys_init_done() {
     __init_systems();
 
     // Initialiser HW timer to call __step(), every 100 us.
     hw_timer_init(FRC1_SOURCE, 1);
     hw_timer_set_func(__step_free_loop);
     hw_timer_arm(100);
+}
+
+/**
+* @brief Initialise the ESP, as well as the low-level puff systems.
+*/
+void user_init(void) {
+    system_init_done_cb(__esp_sys_init_done);
 }
