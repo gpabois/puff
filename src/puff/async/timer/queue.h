@@ -2,29 +2,48 @@
 #define __ASYNC_TIMER_QUEUE_H__
 
 #include <puff/async/timer.h>
+#include <puff/std/stddef.h>
 
-#define ASYNC_TIMER_QUEUE_CAPACITY 100
-#define ASYNC_TIMER_INDEX_TYPE unsigned char
-
+/**
+ * @brief A queue for timer references. 
+ */
 typedef struct {
-    AsyncTimer_t* base[ASYNC_TIMER_QUEUE_CAPACITY];
-    ASYNC_TIMER_INDEX_TYPE read;
-    ASYNC_TIMER_INDEX_TYPE write;
+    AsyncTimer_t** base;
+    size_t capacity;
+    size_t read;
+    size_t write;
 } AsyncTimerQueue_t;
 
-// A locked-queue that pops until the limit.
-// This allow to enqueue new element, while dequeuing.
+/**
+ * @brief A locked-queue that pops until the limit.
+ * @note 
+ * This allow to enqueue new element, while dequeuing.
+ */
 typedef struct {
     AsyncTimerQueue_t* queue;
-    ASYNC_TIMER_INDEX_TYPE limit;
+    size_t limit;
 } LockedAsyncTimerQueue_t;
 
-void init_async_timer_queue(AsyncTimerQueue_t* queue);
+/**
+ * @brief Initialise a timer queue
+ * 
+ * @param queue 
+ * @param base a pointer to an array of references
+ * @param capacity the capacity of the array
+ */
+void init_async_timer_queue(AsyncTimerQueue_t* queue, AsyncTimer_t** base, size_t capacity);
+
+/**
+ * @brief Dequeue a reference to a timer
+ * 
+ * @param queue 
+ * @param dest the receiver of the timer reference
+ * @return char >0 if there is a timer to pop, 0 else.
+ */
 char dequeue_async_timer_queue(AsyncTimerQueue_t* queue, AsyncTimer_t** dest);
 char enqueue_async_timer_queue(LockedAsyncTimerQueue_t* queue, AsyncTimer_t* timer);
 
 LockedAsyncTimerQueue_t lock_async_timer_queue(AsyncTimerQueue_t* queue);
 char dequeue_locked_async_timer_queue(LockedAsyncTimerQueue_t* lock, AsyncTimer_t** dest);
-char enqueue_locked_async_timer_queue(LockedAsyncTimerQueue_t* lock, AsyncTimer_t* timer);
 
 #endif

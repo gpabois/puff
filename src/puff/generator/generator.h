@@ -4,43 +4,60 @@
 #include <puff/yarn/yarn.h>
 #include <puff/std/stdint.h>
 
-#define _GEN_BUF_LEN 1000
-#define _GEN_STACK_LEN 1000
+#define GEN_BUF_LEN 1000
+#define GEN_STACK_LEN 1000
+#define GEN_EXCEPTION_STACK_LEN 1000
 
-typedef uint8_t GeneratorBuffer_t[_GEN_BUF_LEN];
-typedef uint8_t GeneratorStack_t[_GEN_STACK_LEN];
+typedef uint8_t GeneratorBuffer_t[GEN_BUF_LEN];
 
 #define Gen_Yield 1
 #define Gen_Returned 2
 #define Gen_Failed 3
 
 typedef struct {
-    uint8_t data[_GEN_BUF_LEN];
+    uint8_t data[GEN_BUF_LEN];
     unsigned int size;
 } GeneratorBuffer_t;
 
 typedef struct {
     size_t            rc;
     Yarn_t            yarn;
+
     GeneratorBuffer_t buf;
-    GeneratorStack_t  stack;
+
+    ExceptionContext_t exc_context;
+    CallStack_t call_stack;
+
+    Exception_t __exc_stack[100];
+    uint8_t __call_stack[GEN_STACK_LEN];
 } Generator_t;
 
-// [Private] Set value in the generator buffer.
+/**
+ * @brief Set value in the generator buffer.
+ * @internal
+ */
 #define __gen_set_val(gen, rvalue) {\
     typeof(rvalue)* tbuf = (typeof(rvalue)*)gen->buf.data;\
     *tbuf = rvalue;\
     gen->buf.size = sizeof(typeof(rvalue));\
 }
 
-// [Private] Get value from the generator buffer.
+/**
+* @brief Get value from the generator buffer.
+* @internal
+*/ 
 #define __gen_get_val(gen, lvalue) {\
     typeof(lvalue)* tbuf = (typeof(lvalue)*)gen->buf.data;\
     lvalue = *tbuf;\
 }
 
 /**
- * Send value to the generator, and runs it.
+* @brief Send value to the generator, and runs it.
+*
+* @throw An error if the generator has failed.
+* @param gen the generator which will receive the value.
+* @param lvalue the receiver of the yielded value (if any) 
+* @param rvalue the value to send to the generator
 */
 #define gen_send(gen, lvalue, rvalue) {\
     __gen_set_val(gen, rvalue);\
@@ -50,8 +67,11 @@ typedef struct {
     }\
 }
 
-/*
-* Yield value, and assign sent value to the lvalue
+/**
+* @brief Yield value, and assign sent value to the lvalue
+*
+* @param rvalue the value to yield
+* @param lvalue the receiver of the sent value
 */ 
 #define yield_assign(lvalue, rvalue) {\
     __gen_set_val(__gen, rvalue);\
@@ -59,8 +79,10 @@ typedef struct {
     __gen_get_val(__gen, lvalue);\
 }
 
-/*
-* Yield value
+/**
+* @brief Yield value
+*
+* @param rvalue the value to yield
 */ 
 #define yield(rvalue) {\
     __gen_set_val(__gen, rvalue);\
@@ -68,34 +90,47 @@ typedef struct {
 }
 
 
-// Delegate to a sub-generator.
+/**
+ * @brief Delegate to a sub-generator
+ * 
+ * @param from_expr an expression that return a sub-generator.
+ */
 #define yield_from(from_expr) {\
-    __yield_from(__gen, from_expr);\
+    __yield_from(__gen, from_expr, true);\
     __gen->rc--;\
 }\
 
-/*
-*   Initialise the generator.
+/**
+* @brief Initialise the generator
+* @internal
 */
 void __init_gen(Generator_t* gen);
 
-/*
-* Delegate to a sub-generator.
+/**
+* @brief Delegates to a sub-generator.
+*
+* @internal
+* @param caller the parent generator
+* @param callee the sub-generator
+* @param yield_on_return yield the returned value from the callee
 */
-void __yield_from(Generator_t* caller, Generator_t* callee);
+void __yield_from(Generator_t* caller, Generator_t* callee, char yield_on_return);
 
 /**
- * After value is set, send it to the generator and run it.
- * Throw an error if the generator has failed.
+* @brief Resume generator's execution.
+*
+* @internal
+* @param gen the generator to resume
+* @throw generator's error
 */
 char __send_to_gen(Generator_t* gen);
 
 /**
- * Returns back to the __send_gen call.
+* @brief Returns back to the __send_gen call
+*
+* @param gen the generator
+* @param code Gen_Yield, Gen_Failed, Gen_Returned
 */
 void __ret_from_gen(Generator_t* gen, int code);
-
-void acquire_gen(Generator_t* gen);
-void release_gen(Generator_t* gen);
 
 #endif

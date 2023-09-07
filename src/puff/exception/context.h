@@ -6,7 +6,7 @@
 #define _EXC_CAPACITY_TYPE unsigned int
 
 /**
-* Exception context
+* @brief Exception context
 */
 typedef struct {
     Exception_t* base;

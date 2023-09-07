@@ -3,6 +3,9 @@
 
 #include <puff/generator/generator.h>
 
+/**
+* @brief Coroutine
+*/
 typedef Generator_t Coro_t;
 
 #endif

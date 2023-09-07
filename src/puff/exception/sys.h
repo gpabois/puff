@@ -6,17 +6,33 @@
 
 #define DEFAULT_EXCEPTION_STACK_SIZE 100
 
-// Initialise the exception system.
-// Must be called at the start of the firmware execution.
+/**
+ * @brief Initialise the exception system.
+ * @note
+ * Must be called at the start of the firmware execution.
+ */
 void __init_exception_sys();
 
-// Set a new exception context
+/**
+ * @brief Set the current exception context
+ * 
+ * @param ctx 
+ */
 void set_exception_context(ExceptionContext_t* ctx);
 
-// Restore the previous exception context.
+/**
+ * @brief Restore the default exception context
+ * 
+ * @return ExceptionContext_t* 
+ */
 ExceptionContext_t* restore_exception_context();
 
-// Return the current exception context.
+/**
+ * @brief Get the current exception context
+ * @internal
+ * 
+ * @return ExceptionContext_t* 
+ */
 ExceptionContext_t* __get_current_exception_context();
 
 #endif

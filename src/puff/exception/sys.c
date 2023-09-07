@@ -7,6 +7,7 @@ static ExceptionContext_t* current_contexts[_CPU_LEN];
 
 void __init_exception_sys()
 {
+    printk("Initialise exception system");
     for(_CPU_ID_TYPE cpuid = 0; cpuid < _CPU_LEN; cpuid++) {
         init_exception_context(&default_contexts[cpuid], default_exc_stacks[cpuid], DEFAULT_EXCEPTION_STACK_SIZE);
     }

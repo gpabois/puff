@@ -34,8 +34,15 @@
 #define IS_VOID   0
 
 /**
-* Hack: https://www.scs.stanford.edu/%7Edm/blog/va-opt.html
-**/
+ * @brief Define a new generator
+ * 
+ * @param return_t the returned type, **void is not possible**.
+ * @param name name of the generator
+ * @param ... a sequence of pair type, symbol
+ * 
+ * @note 
+ * Hack: https://www.scs.stanford.edu/%7Edm/blog/va-opt.html
+ */
 #define gen_def(return_t, name, ...) Generator_t* name(ARG_DEFS(__VA_ARGS__)) {\
     Generator_t* gen;\
     Yarn_t here = from_here();\

@@ -2,24 +2,26 @@
 #define __ASYNC_CORO_QUEUE_H__
 
 #include <puff/async/coro.h>
+#include <puff/std/stddef.h>
 
 #define ASYNC_CORO_MAX_CAPACITY 100
 #define ASYNC_CORO_INDEX_TYPE unsigned char
 
 typedef struct {
-    Coro_t* base[ASYNC_CORO_MAX_CAPACITY];
-    ASYNC_CORO_INDEX_TYPE read;
-    ASYNC_CORO_INDEX_TYPE write;
+    Coro_t** base;
+    size_t capacity;
+    size_t read;
+    size_t write;
 } CoroQueue_t;
 
 // A locked-queue that pops until the limit.
 // This allow to enqueue new element, while dequeuing.
 typedef struct {
     CoroQueue_t* queue;
-    ASYNC_CORO_INDEX_TYPE limit;
+    size_t limit;
 } LockedCoroQueue_t;
 
-void init_coro_queue(CoroQueue_t* queue);
+void init_coro_queue(CoroQueue_t* queue, Coro_t** base, size_t capacity);
 char dequeue_coro_queue(CoroQueue_t* queue, Coro_t** dest);
 char enqueue_coro_queue(CoroQueue_t* queue, Coro_t* coro);
 
